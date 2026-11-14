@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+logs/
+*.log
+.t/
+app/static/vendor/
+
+app/a2a/youzi_cache/
+*.json.bak
