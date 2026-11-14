@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+openai
+akshare
+pandas
+numpy
+python-dotenv
+pydantic
+panda_data
