@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>量化大富翁 · A2A 投顾委员会</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="/static/vendor/echarts.min.js"></script>
+  <script src="/static/vendor/marked.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">📈</span>
+      <div>
+        <h1>量化大富翁</h1>
+        <p>A2A 投顾委员会 · 巴菲特 / 林奇 / 费雪 / 利弗莫尔 / 格雷厄姆</p>
+      </div>
+    </div>
+    <div class="top-right">
+      <span id="llmMode" class="mode-badge">本地规则模式</span>
+      <button id="settingsBtn" class="settings-btn">设置 Key</button>
+      <span class="disclaimer">仅供研究学习 · 非投资建议</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="chat-panel">
+      <div class="input-row">
+        <input id="stock" type="text" placeholder="股票代码或名称，如 600519 / 贵州茅台" />
+        <input id="question" type="text" placeholder="想问什么？（可留空）" />
+        <button id="analyzeBtn">召开会议</button>
+      </div>
+      <div class="quick">
+        <span>快捷：</span>
+        <a data-q="贵州茅台">贵州茅台</a>
+        <a data-q="宁德时代">宁德时代</a>
+        <a data-q="比亚迪">比亚迪</a>
+        <a data-q="中国平安">中国平安</a>
+        <a data-screen="000300">沪深300筛选</a>
+      </div>
+      <div id="status" class="status"></div>
+      <article id="answer" class="answer">
+        <div class="placeholder">输入一只股票，总览管家会派发任务给五位投资大师，各自独立研判后汇总决议。</div>
+      </article>
+    </section>
+
+    <section class="chart-panel">
+      <div class="chart-subject" id="chartSubject">当前标的：—</div>
+      <div class="tabs">
+        <button class="tab active" data-tab="committee">投顾委员会</button>
+        <button class="tab" data-tab="technical">技术面</button>
+        <button class="tab" data-tab="macro">宏观面</button>
+        <button class="tab" data-tab="screen">筛选</button>
+      </div>
+
+      <div class="tab-page active" id="tab-committee">
+        <div id="orchestratorCard" class="orchestrator-card">
+          <div class="placeholder-sm">等待总览管家分配任务…</div>
+        </div>
+        <div id="masterGrid" class="master-grid"></div>
+        <div class="chart-card">
+          <h3>大师评分 · 投顾分歧</h3>
+          <div id="committeeChart" class="chart"></div>
+        </div>
+        <div class="chart-card" id="debateCard" style="display:none">
+          <h3>A2A 辩论实况 <span id="debateRounds" class="badge"></span></h3>
+          <div id="debateFeed" class="debate-feed"></div>
+        </div>
+        <div class="chart-card">
+          <h3>总管仓位配置</h3>
+          <div id="allocationChart" class="chart small"></div>
+        </div>
+        <div class="chart-card" id="buffettSub" style="display:none">
+          <h3>巴菲特专项仪表盘</h3>
+          <div id="buffettMetrics" class="buffett-metrics"></div>
+          <div id="buffettChart" class="chart small"></div>
+          <div id="valChart" class="chart tiny"></div>
+        </div>
+      </div>
+
+      <div class="tab-page" id="tab-technical">
+        <div class="chart-card">
+          <h3>K 线 · 均线</h3>
+          <div id="klineChart" class="chart"></div>
+        </div>
+        <div class="chart-card">
+          <h3>MACD / RSI</h3>
+          <div id="indChart" class="chart small"></div>
+        </div>
+      </div>
+
+      <div class="tab-page" id="tab-macro">
+        <div class="chart-card">
+          <h3>宏观快照</h3>
+          <div id="macroCards" class="macro-cards"></div>
+          <div id="indexChart" class="chart small"></div>
+        </div>
+      </div>
+
+      <div class="tab-page" id="tab-screen">
+        <div class="chart-card">
+          <h3 id="screenTitle">大师筛选榜</h3>
+          <div class="screen-controls">
+            <select id="screenMaster" title="选择大师流派">
+              <option value="buffett">巴菲特 · 价值投资</option>
+              <option value="lynch">林奇 · 成长股</option>
+              <option value="fisher">费雪 · 优质成长</option>
+              <option value="livermore">利弗莫尔 · 趋势交易</option>
+              <option value="graham">格雷厄姆 · 防御价值</option>
+              <option value="all">五位大师并集</option>
+            </select>
+            <select id="screenIndex" title="选择股票池">
+              <option value="000300">沪深300</option>
+              <option value="000905">中证500</option>
+              <option value="000852">中证1000</option>
+              <option value="000016">上证50</option>
+              <option value="399006">创业板指</option>
+            </select>
+            <select id="screenTop" title="返回数量">
+              <option value="10">10 只</option>
+              <option value="20" selected>20 只</option>
+              <option value="50">50 只</option>
+            </select>
+            <button id="screenRunBtn">开始筛选</button>
+          </div>
+          <div id="screenStatus" class="screen-status">尚未筛选。选择大师与股票池后点击“开始筛选”。</div>
+          <div id="screenChart" class="chart small"></div>
+          <div id="screenTableWrap" class="screen-table-wrap"></div>
+          <div id="screenList" class="screen-list"></div>
+          <div id="screenIntersection" class="screen-intersection" style="display:none"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="configModal" class="modal-overlay" style="display:none">
+    <div class="modal">
+      <h3>大模型 API Key 设置</h3>
+      <p class="modal-desc">填写 OpenAI 兼容接口的 Key（DeepSeek / Qwen / OpenAI 均可），保存后立即生效并写回 .env。</p>
+      <label for="cfgKey">API Key</label>
+      <input id="cfgKey" type="password" placeholder="sk-..." autocomplete="off" />
+      <label for="cfgBaseUrl">Base URL</label>
+      <input id="cfgBaseUrl" type="text" placeholder="https://api.deepseek.com" />
+      <label for="cfgModel">模型名</label>
+      <input id="cfgModel" type="text" placeholder="deepseek-chat" />
+      <div class="modal-actions">
+        <button id="cfgSave" class="primary">保存并启用</button>
+        <button id="cfgClear">清除 Key</button>
+        <button id="cfgCancel">取消</button>
+      </div>
+      <div id="cfgStatus" class="cfg-status"></div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
